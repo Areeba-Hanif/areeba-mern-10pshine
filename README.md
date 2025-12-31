@@ -1,9 +1,3 @@
-# 📝 Notes Management Application (MERN Stack)
-👩‍💻 Author
-
-Areeba
-MERN Stack Intern – 10P SHINE Program
-
 📌 Project Overview
 
 The Notes Management Application is a full-stack web application developed using the MERN stack. The application enables users to securely create, edit, view, and delete personal notes. Each user’s data is protected through authentication and authorization mechanisms to ensure privacy and data integrity.
@@ -161,31 +155,7 @@ SonarQube
 
 Git & GitHub
 
-📂 Project Structure
-areeba-mern-10pshine/
- ┣ backend/
- ┃ ┗ src/
- ┣ frontend/
- ┃ ┗ src/
- ┣ README.md
 
-🔀 Git & Branching Strategy
-
-main: Production-ready code
-
-develop: Integration branch
-
-Feature branches:
-
-feature/backend/<feature-name>
-
-feature/frontend/<feature-name>
-
-Bugfix branches:
-
-bugfix/backend/<issue>
-
-bugfix/frontend/<issue>
 
 🚀 Future Enhancements
 
