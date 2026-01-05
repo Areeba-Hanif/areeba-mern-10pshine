@@ -4,6 +4,7 @@ const pinoHttp = require("pino-http");
 const logger = require("./utils/logger");
 const errorHandler = require("./middlewares/auth.middleware");
 const authRoutes = require("./routes/auth.routes");
+const noteRoutes = require("./routes/note.routes");
 
 
 const app = express();
@@ -21,6 +22,10 @@ app.use("/api/auth", authRoutes);
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
 });
+
+
+app.use("/api/notes", noteRoutes);
+
 
 // Error handling middleware (last)
 app.use(errorHandler);
