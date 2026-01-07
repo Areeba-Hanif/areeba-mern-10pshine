@@ -28,13 +28,20 @@ const create = async (req, res, next) => {
     next(error);
   }
 };
-
 const getAll = async (req, res, next) => {
   try {
-    const notes = await getUserNotes(req.user._id);
+    const { search, from, to } = req.query;
+
+    const notes = await getUserNotes({
+      userId: req.user._id,
+      search,
+      from,
+      to,
+    });
 
     res.status(200).json({
       success: true,
+      count: notes.length,
       data: notes,
     });
   } catch (error) {
