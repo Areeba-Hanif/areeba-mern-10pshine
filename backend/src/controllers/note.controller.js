@@ -1,4 +1,4 @@
-const { createNote, getUserNotes, updateNote, deleteNote,} = require("../services/note.service");const logger = require("../utils/logger");
+const { createNote, getUserNotes, updateNote, deleteNote,  } = require("../services/note.service");const logger = require("../utils/logger");
 
 const create = async (req, res, next) => {
   try {
@@ -89,9 +89,13 @@ const remove = async (req, res, next) => {
 };
 
 
+
+
 module.exports = {
   create,
   getAll,
   update,
-  remove
+  remove,
+  
+
 };
