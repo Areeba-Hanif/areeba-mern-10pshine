@@ -1,4 +1,4 @@
-const { registerUser, loginUser, forgotPassword, resetPassword} = require("../services/auth.service");
+const { registerUser, loginUser, forgotPassword, resetPassword, getMe} = require("../services/auth.service");
 const logger = require("../utils/logger");
 
 
@@ -97,10 +97,32 @@ const reset = async (req, res, next) => {
   }
 };
 
+const me = async (req, res, next) => {
+  try {
+    const user = await getMe(req.user._id);
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const logout = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+};
 
 module.exports = {
   register,
   login,
   forgot,
   reset,
+  me,
+  logout,
 };
