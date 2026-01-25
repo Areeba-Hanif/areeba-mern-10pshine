@@ -62,56 +62,36 @@ const loginUser = async ({ email, password }) => {
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email });
 
-  if (!user) {
-    const error = new Error("User not found with this email");
-    error.statusCode = 404;
-    throw error;
-  }
+  if (!user) throw new Error("User not found");
 
-  // Generate reset token
   const resetToken = user.getResetPasswordToken();
 
-  // Save user with new fields
   await user.save({ validateBeforeSave: false });
 
-  return resetToken;
+  return resetToken; // send via email
 };
 
 const resetPassword = async (token, newPassword) => {
-  // Hash the token to match DB
-  const resetPasswordToken = crypto
+  const hashedToken = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
 
-  // Find user with this token AND valid expiry
   const user = await User.findOne({
-    resetPasswordToken,
+    resetPasswordToken: hashedToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
-  if (!user) {
-    const error = new Error("Invalid or expired token");
-    error.statusCode = 400;
-    throw error;
-  }
+  if (!user) throw new Error("Invalid or expired token");
 
-  // Update password
-  user.password = newPassword;
-
-  // Clear reset fields
+  user.password = newPassword; // auto-hashed by pre-save hook
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
 
   await user.save();
 
-  return {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-  };
+  return user;
 };
-
 
 
 module.exports = {

@@ -17,7 +17,8 @@ const register = async (req, res, next) => {
 
     const user = await registerUser({ name, email, password });
 
-    logger.info(`New user registered: ${email}`);
+    logger.info({ userId: user._id, email: user.email }, "User registered");
+
 
     res.status(201).json({
       success: true,
@@ -39,6 +40,7 @@ const login = async (req, res, next) => {
     }
 
     const result = await loginUser({ email, password });
+    logger.info({ userId: result.user._id, email: result.user.email }, "User logged in");
 
     res.status(200).json({
       success: true,
@@ -62,6 +64,8 @@ const forgot = async (req, res, next) => {
     }
 
     const resetToken = await forgotPassword(email);
+    logger.info({ email }, "Password reset requested");
+
 
     res.status(200).json({
       success: true,
@@ -86,6 +90,8 @@ const reset = async (req, res, next) => {
     }
 
     const user = await resetPassword(token, newPassword);
+    logger.info({ userId: user._id }, "Password reset successful");
+
 
     res.status(200).json({
       success: true,
@@ -97,10 +103,18 @@ const reset = async (req, res, next) => {
   }
 };
 
+const me = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+};
+
 
 module.exports = {
   register,
   login,
   forgot,
   reset,
+  me,
 };

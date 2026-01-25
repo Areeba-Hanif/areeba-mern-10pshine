@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const pinoHttp = require("pino-http");
 const logger = require("./utils/logger");
-const errorHandler = require("./middlewares/auth.middleware");
+const errorHandler = require("./middlewares/error.middleware");
 const authRoutes = require("./routes/auth.routes");
 const noteRoutes = require("./routes/note.routes");
 
@@ -10,7 +10,17 @@ const noteRoutes = require("./routes/note.routes");
 const app = express();
 
 // Middlewares
-app.use(pinoHttp({ logger }));
+
+app.use(
+  pinoHttp({
+    redact: {
+      paths: ["req.headers.authorization",
+         "req.headers.cookie"
+      ],
+      remove: true
+    }
+  })
+);
 app.use(express.json());
 app.use(cors());
 
