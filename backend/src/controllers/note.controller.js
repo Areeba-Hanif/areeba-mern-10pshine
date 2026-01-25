@@ -107,9 +107,13 @@ const remove = async (req, res, next) => {
 };
 
 
+
+
 module.exports = {
   create,
   getAll,
   update,
-  remove
+  remove,
+  
+
 };

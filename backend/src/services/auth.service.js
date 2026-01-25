@@ -47,6 +47,9 @@ const loginUser = async ({ email, password }) => {
     { expiresIn: "1d" }
   );
 
+
+
+  
   return {
     token,
     user: {
@@ -93,10 +96,22 @@ const resetPassword = async (token, newPassword) => {
   return user;
 };
 
+const getMe = async (userId) => {
+  const user = await User.findById(userId).select("-password");
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return user;
+};
 
 module.exports = {
   registerUser,
   loginUser,
   forgotPassword,
   resetPassword,
+  getMe,
 };

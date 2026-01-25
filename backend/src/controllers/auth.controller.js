@@ -1,4 +1,4 @@
-const { registerUser, loginUser, forgotPassword, resetPassword} = require("../services/auth.service");
+const { registerUser, loginUser, forgotPassword, resetPassword, getMe} = require("../services/auth.service");
 const logger = require("../utils/logger");
 
 
