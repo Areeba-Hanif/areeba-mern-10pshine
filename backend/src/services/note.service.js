@@ -29,6 +29,24 @@ const getUserNotes = async ({ userId, search, from, to }) => {
   return await Note.find(query).sort({ createdAt: -1 });
 };
 
+const updateNote = async ({ noteId, userId, title, content }) => {
+  const note = await Note.findOneAndUpdate(
+    { _id: noteId, user: userId }, // ownership check ✅
+    { title, content },
+    { new: true }
+  );
+
+  return note;
+};
+
+const deleteNote = async ({ noteId, userId }) => {
+  const note = await Note.findOneAndDelete({
+    _id: noteId,
+    user: userId, // ownership check ✅
+  });
+
+  return note;
+};
 
 
 
