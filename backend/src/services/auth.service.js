@@ -80,16 +80,18 @@ const forgotPassword = async (email) => {
   return resetToken;
 };
 
+
+
 const resetPassword = async (token, newPassword) => {
-  // Hash the token to match DB
-  const resetPasswordToken = crypto
+  // 1. Hash the plain token from the URL to match the one in DB
+  const hashedToken = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
 
-  // Find user with this token AND valid expiry
+  // 2. Find user with the hashed token AND ensure it's not expired
   const user = await User.findOne({
-    resetPasswordToken,
+    resetPasswordToken: hashedToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
@@ -99,10 +101,11 @@ const resetPassword = async (token, newPassword) => {
     throw error;
   }
 
-  // Update password
+  // 3. Set the new plain password
+  
   user.password = newPassword;
 
-  // Clear reset fields
+  // 4. Clear the reset fields so the token can't be used again
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
 
@@ -114,7 +117,6 @@ const resetPassword = async (token, newPassword) => {
     email: user.email,
   };
 };
-
 const getMe = async (userId) => {
   const user = await User.findById(userId).select("-password");
 

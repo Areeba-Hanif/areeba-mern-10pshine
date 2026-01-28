@@ -29,12 +29,71 @@ const getUserNotes = async ({ userId, search, from, to }) => {
   return await Note.find(query).sort({ createdAt: -1 });
 };
 
+const getNoteById = async ({ noteId, userId }) => {
+  const note = await Note.findById(noteId);
+
+  if (!note) {
+    const error = new Error("Note not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (note.user.toString() !== userId.toString()) {
+    const error = new Error("Not authorized");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  return note;
+};
+
+const updateNote = async ({ noteId, title, content, userId }) => {
+  const note = await Note.findById(noteId);
+
+  if (!note) {
+    const error = new Error("Note not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (note.user.toString() !== userId.toString()) {
+    const error = new Error("Not authorized to update this note");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  note.title = title || note.title;
+  note.content = content || note.content;
+
+  await note.save();
+  return note;
+};
+const deleteNote = async ({ noteId, userId }) => {
+  const note = await Note.findById(noteId);
+
+  if (!note) {
+    const error = new Error("Note not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (note.user.toString() !== userId.toString()) {
+    const error = new Error("Not authorized to delete this note");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  await note.deleteOne();
+  return note;
+};
 
 
 
 module.exports = {
   createNote,
   getUserNotes,
+  getNoteById,
   updateNote,
-  deleteNote
+  deleteNote,
+   
 };

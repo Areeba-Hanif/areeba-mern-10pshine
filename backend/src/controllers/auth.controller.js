@@ -97,19 +97,20 @@ const reset = async (req, res, next) => {
   }
 };
 
+
 const me = async (req, res, next) => {
   try {
+ 
     const user = await getMe(req.user._id);
 
     res.status(200).json({
       success: true,
-      user,
+      data: user, 
     });
   } catch (error) {
     next(error);
   }
 };
-
 
 const logout = async (req, res) => {
   res.status(200).json({
