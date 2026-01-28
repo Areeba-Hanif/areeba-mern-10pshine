@@ -1,4 +1,8 @@
-const { createNote, getUserNotes, updateNote, deleteNote,  } = require("../services/note.service");const logger = require("../utils/logger");
+const { createNote, getUserNotes, updateNote, deleteNote,} = require("../services/note.service");
+const logger = require("../utils/logger");
+
+
+
 
 const create = async (req, res, next) => {
   try {
@@ -16,7 +20,8 @@ const create = async (req, res, next) => {
       userId: req.user._id,
     });
 
-    logger.info(`Note created by user ${req.user._id}`);
+    logger.info({ userId: req.user._id }, "Note created");
+
 
     res.status(201).json({
       success: true,
@@ -66,6 +71,9 @@ const update = async (req, res, next) => {
       userId: req.user._id,
     });
 
+    logger.info({ noteId: id, userId: req.user._id }, "Note updated");
+
+
     res.status(200).json({
       success: true,
       message: "Note updated successfully",
@@ -84,6 +92,9 @@ const remove = async (req, res, next) => {
       noteId: id,
       userId: req.user._id,
     });
+
+    logger.info({ noteId: id, userId: req.user._id }, "Note deleted");
+
 
     res.status(200).json({
       success: true,
