@@ -1,11 +1,23 @@
 const logger = require("../utils/logger");
 
 const errorHandler = (err, req, res, next) => {
-  logger.error(err);
+  const statusCode = err.statusCode || 500;
 
-  res.status(err.statusCode || 500).json({
+  logger.error(
+    {
+      statusCode,
+      path: req.originalUrl,
+      method: req.method,
+    },
+    err.message
+  );
+
+  res.status(statusCode).json({
     success: false,
-    message: err.message || "Server Error",
+    message:
+      statusCode === 500
+        ? "Something went wrong. Please try again."
+        : err.message,
   });
 };
 
