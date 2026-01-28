@@ -65,19 +65,13 @@ const loginUser = async ({ email, password }) => {
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email });
 
-  if (!user) {
-    const error = new Error("User not found with this email");
-    error.statusCode = 404;
-    throw error;
-  }
+  if (!user) throw new Error("User not found");
 
-  // Generate reset token
   const resetToken = user.getResetPasswordToken();
 
-  // Save user with new fields
   await user.save({ validateBeforeSave: false });
 
-  return resetToken;
+  return resetToken; // send via email
 };
 
 
@@ -111,11 +105,7 @@ const resetPassword = async (token, newPassword) => {
 
   await user.save();
 
-  return {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-  };
+  return user;
 };
 const getMe = async (userId) => {
   const user = await User.findById(userId).select("-password");
@@ -128,7 +118,6 @@ const getMe = async (userId) => {
 
   return user;
 };
-
 
 module.exports = {
   registerUser,

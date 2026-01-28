@@ -1,4 +1,7 @@
 const express = require("express");
+const { create, getAll, update, remove } = require("../controllers/note.controller");
+const { protect } = require("../middlewares/auth.middleware");
+
 const router = express.Router();
 
 // 1. Imports
@@ -13,5 +16,4 @@ router.delete("/:id", protect, remove);
 router.get("/:id", protect, getOne);
 
 
-// 3. Export at the VERY end
 module.exports = router;
