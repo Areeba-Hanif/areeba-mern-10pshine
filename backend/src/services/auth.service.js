@@ -74,20 +74,32 @@ const forgotPassword = async (email) => {
   return resetToken; // send via email
 };
 
+
+
 const resetPassword = async (token, newPassword) => {
+  // 1. Hash the plain token from the URL to match the one in DB
   const hashedToken = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
 
+  // 2. Find user with the hashed token AND ensure it's not expired
   const user = await User.findOne({
     resetPasswordToken: hashedToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
-  if (!user) throw new Error("Invalid or expired token");
+  if (!user) {
+    const error = new Error("Invalid or expired token");
+    error.statusCode = 400;
+    throw error;
+  }
 
-  user.password = newPassword; // auto-hashed by pre-save hook
+  // 3. Set the new plain password
+  
+  user.password = newPassword;
+
+  // 4. Clear the reset fields so the token can't be used again
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
 
@@ -95,7 +107,6 @@ const resetPassword = async (token, newPassword) => {
 
   return user;
 };
-
 const getMe = async (userId) => {
   const user = await User.findById(userId).select("-password");
 

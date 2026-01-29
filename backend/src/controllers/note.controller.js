@@ -1,8 +1,5 @@
-const { createNote, getUserNotes, updateNote, deleteNote,} = require("../services/note.service");
+const { createNote, getUserNotes, updateNote, deleteNote, getNoteById, } = require("../services/note.service");
 const logger = require("../utils/logger");
-
-
-
 
 const create = async (req, res, next) => {
   try {
@@ -47,6 +44,22 @@ const getAll = async (req, res, next) => {
       success: true,
       count: notes.length,
       data: notes,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getOne = async (req, res, next) => {
+  try {
+    const note = await getNoteById({
+      noteId: req.params.id,
+      userId: req.user._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: note,
     });
   } catch (error) {
     next(error);
@@ -112,8 +125,9 @@ const remove = async (req, res, next) => {
 module.exports = {
   create,
   getAll,
+  getOne,
   update,
   remove,
-  
+ 
 
 };
