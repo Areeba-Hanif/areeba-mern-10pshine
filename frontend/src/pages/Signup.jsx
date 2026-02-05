@@ -1,151 +1,105 @@
-
-import React, { useState, useEffect } from 'react'; // Added useEffect
-import { Mail, Lock, User, Eye, EyeOff, Sun, Moon, UserPlus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Lock, User, Eye, EyeOff, Sun,StickyNote, Moon, ArrowRight, CheckCircle2, Shield } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/useAuth';
-import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
-import logger from '../utils/logger';
 
 const Signup = () => {
-  const navigate = useNavigate(); // Uncommented
-  // ADD THIS LINE INSTEAD:
+  const navigate = useNavigate();
   const { isDark, toggleTheme } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
-  const [errors, setErrors] = useState({});
-
-  
-
-  // Real-time Validation Logic
-  useEffect(() => {
-    const newErrors = {};
-    
-    if (formData.fullName && !/^(?=.*[a-z])(?=.*[A-Z]).+$/.test(formData.fullName)) {
-      newErrors.fullName = "Need both capital & small letters";
-    }
-
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-    }
-
-    if (formData.password && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(formData.password)) {
-      newErrors.password = "Need 6+ chars, 1 Cap, 1 Small, 1 Num";
-    }
-
-    setErrors(newErrors);
-  }, [formData]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    if (Object.keys(errors).length > 0) {
-      return toast.error("Please fix the validation errors first!");
-    }
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
 
-    const loadingToast = toast.loading("Creating your account...");
     try {
-      const response = await api.post('/auth/register', { 
-        name: formData.fullName, 
-        email: formData.email, 
-        password: formData.password 
-      });
-
+      const response = await api.post('/auth/register', { name, email, password });
       if (response.data.success) {
-        toast.success("Welcome aboard!", { id: loadingToast });
+        toast.success("Account created! Please login.");
         navigate('/login');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed", { id: loadingToast });
+      toast.error(error.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 transition-colors duration-500">
-      <button onClick={toggleTheme} type="button" className="absolute top-8 right-8 p-3 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-yellow-400">
-        {isDark ? <Sun size={20} /> : <Moon size={20} />}
-      </button>
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+      
+      {/* LEFT SIDE: SAME FEATURE SHOWCASE FOR CONSISTENCY */}
+      <div className="hidden lg:flex w-1/2 bg-indigo-600 dark:bg-indigo-900 p-12 flex-col justify-between relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-12">
+            <div className="bg-white p-2 rounded-xl"><StickyNote className="text-indigo-600" size={24} /></div>
+            <span className="text-white font-black text-2xl tracking-tight">BrainDump</span>
+          </div>
+          <h2 className="text-5xl font-black text-white leading-tight mb-6">Start your <br /> <span className="text-indigo-200">digital legacy.</span></h2>
+          <div className="space-y-6 mt-12">
+            <div className="flex gap-4 items-start bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+              <CheckCircle2 className="text-indigo-200 mt-1" size={20}/>
+              <div><h4 className="text-white font-bold">Free Forever</h4><p className="text-indigo-100 text-sm">Core features will always be free for students.</p></div>
+            </div>
+            <div className="flex gap-4 items-start bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+              <Shield className="text-indigo-200 mt-1" size={20}/>
+              <div><h4 className="text-white font-bold">Data Sovereignty</h4><p className="text-indigo-100 text-sm">You own your data. Export it anytime.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div className="w-full max-w-md">
-        <div className="relative p-1 rounded-3xl bg-gradient-to-tr from-purple-600 to-blue-600 shadow-2xl overflow-hidden">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[1.4rem]">
-            <div className="mb-8 text-center">
-              <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Start Fresh</h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium">Join thousands of thinkers.</p>
+      {/* RIGHT SIDE: SIGNUP FORM */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
+        <button onClick={toggleTheme} className="absolute top-8 right-8 p-3 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 text-yellow-400">
+          {isDark ? <Sun size={20} /> : <Moon size={20} className="text-slate-800"/>}
+        </button>
+
+        <div className="w-full max-w-md">
+          <div className="mb-10 text-center lg:text-left">
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Create Account</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium">Join thousands of thinkers today.</p>
+          </div>
+
+          <form className="space-y-4" onSubmit={handleSignup}>
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Full Name</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
+                <input name="name" type="text" required className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" placeholder="John Doe" />
+              </div>
             </div>
 
-            <form className="space-y-4" onSubmit={handleSignup}>
-              {/* Full Name */}
-              <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Full Name</label>
-                <div className="relative group">
-                  <User className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.fullName ? 'text-red-400' : 'text-slate-400 group-focus-within:text-purple-500'}`} size={18} />
-                  <input 
-                    name="fullName" 
-                    onChange={handleChange} 
-                    type="text" 
-                    required 
-                    className={`w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 bg-slate-50 dark:bg-slate-950 outline-none dark:text-white transition-all font-medium ${errors.fullName ? 'border-red-400' : 'border-slate-100 dark:border-slate-800 focus:border-purple-500'}`} 
-                    placeholder="Areeba Khan" 
-                  />
-                </div>
-                {errors.fullName && <p className="text-[11px] text-red-500 font-bold ml-2 animate-pulse">{errors.fullName}</p>}
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email</label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
+                <input name="email" type="email" required className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" placeholder="name@domain.com" />
               </div>
+            </div>
 
-              {/* Email */}
-              <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email</label>
-                <div className="relative group">
-                  <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.email ? 'text-red-400' : 'text-slate-400 group-focus-within:text-purple-500'}`} size={18} />
-                  <input 
-                    name="email" 
-                    onChange={handleChange} 
-                    type="email" 
-                    required 
-                    className={`w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 bg-slate-50 dark:bg-slate-950 outline-none dark:text-white transition-all font-medium ${errors.email ? 'border-red-400' : 'border-slate-100 dark:border-slate-800 focus:border-purple-500'}`} 
-                    placeholder="name@domain.com" 
-                  />
-                </div>
-                {errors.email && <p className="text-[11px] text-red-500 font-bold ml-2 animate-pulse">{errors.email}</p>}
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Password</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
+                <input name="password" type={showPassword ? "text" : "password"} required className="w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" placeholder="••••••••" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
+            </div>
 
-              {/* Password */}
-              <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Password</label>
-                <div className="relative group">
-                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.password ? 'text-red-400' : 'text-slate-400 group-focus-within:text-purple-500'}`} size={18} />
-                  <input 
-                    name="password"
-                    onChange={handleChange}
-                    type={showPassword ? "text" : "password"} 
-                    required
-                    className={`w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 bg-slate-50 dark:bg-slate-950 outline-none dark:text-white transition-all font-medium ${errors.password ? 'border-red-400' : 'border-slate-100 dark:border-slate-800 focus:border-purple-500'}`}
-                    placeholder="••••••••"
-                  />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-purple-500">
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {errors.password && <p className="text-[11px] text-red-500 font-bold ml-2 animate-pulse">{errors.password}</p>}
-              </div>
+            <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 dark:shadow-none mt-4">
+              Get Started <ArrowRight size={18} />
+            </button>
 
-              <button 
-                type="submit" 
-                disabled={Object.keys(errors).length > 0}
-                className={`w-full py-4 mt-2 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 ${Object.keys(errors).length > 0 ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-900 dark:bg-purple-600 hover:bg-black dark:hover:bg-purple-700'}`}
-              >
-                Create Account <UserPlus size={18} />
-              </button>
-
-              <p className="text-center mt-4 text-slate-500 dark:text-slate-400 font-medium text-sm">
-                Already have an account? <Link to="/login" className="text-purple-600 dark:text-purple-400 font-bold hover:underline underline-offset-4 ml-1">Log in</Link>
-              </p>
-            </form>
-          </div>
+            <p className="text-center mt-6 text-slate-500 dark:text-slate-400 font-medium text-sm">
+              Already have an account? <Link to="/login" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline ml-1">Sign in</Link>
+            </p>
+          </form>
         </div>
       </div>
     </div>

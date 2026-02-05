@@ -16,6 +16,18 @@ const noteSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    isFavorite: { 
+    type: Boolean,
+    default: false
+   },
+   isDeleted: {
+    type: Boolean,
+    default: false 
+  },
+isPinned: { type: Boolean, default: false },
+    tags: {
+    type: [String],
+    default: ['Personal'] }
   },
   {
     timestamps: true,
