@@ -1,9 +1,12 @@
 const Note = require("../models/note.model");
 
-const createNote = async ({ title, content, userId }) => {
+const createNote = async ({ title, content, userId, isFavorite, tags }) => {
+  // Added isFavorite and tags to the creation process
   const note = await Note.create({
     title,
     content,
+    isFavorite: isFavorite || false,
+    tags: tags || ['Personal'],
     user: userId,
   });
 
@@ -47,8 +50,19 @@ const getNoteById = async ({ noteId, userId }) => {
   return note;
 };
 
-const updateNote = async ({ noteId, title, content, userId }) => {
-  const note = await Note.findById(noteId);
+// Make sure isPinned is inside this object argument!
+// Inside note.service.js
+const updateNote = async ({
+  noteId,
+  title,
+  content,
+  isFavorite,
+  tags,
+  isDeleted,
+  isPinned,
+  userId,
+}) => {
+  const note = await Note.findOne({ _id: noteId, user: userId });
 
   if (!note) {
     const error = new Error("Note not found");
@@ -56,18 +70,20 @@ const updateNote = async ({ noteId, title, content, userId }) => {
     throw error;
   }
 
-  if (note.user.toString() !== userId.toString()) {
-    const error = new Error("Not authorized to update this note");
-    error.statusCode = 403;
-    throw error;
-  }
-
-  note.title = title || note.title;
-  note.content = content || note.content;
+  if (title !== undefined) note.title = title;
+  if (content !== undefined) note.content = content;
+  if (isFavorite !== undefined) note.isFavorite = isFavorite;
+  if (tags !== undefined) note.tags = tags;
+  if (isDeleted !== undefined) note.isDeleted = isDeleted;
+  if (isPinned !== undefined) note.isPinned = isPinned;
 
   await note.save();
   return note;
 };
+
+
+
+// Permanent Delete (used for "Delete Forever")
 const deleteNote = async ({ noteId, userId }) => {
   const note = await Note.findById(noteId);
 
@@ -86,67 +102,10 @@ const deleteNote = async ({ noteId, userId }) => {
   await note.deleteOne();
   return note;
 };
-
-  return note;
-};
-
-const deleteNote = async ({ noteId, userId }) => {
-  const note = await Note.findOneAndDelete({
-    _id: noteId,
-    user: userId, // ownership check ✅
-  });
-
-  return note;
-};
-
-const updateNote = async ({ noteId, title, content, userId }) => {
-  const note = await Note.findById(noteId);
-
-  if (!note) {
-    const error = new Error("Note not found");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  if (note.user.toString() !== userId.toString()) {
-    const error = new Error("Not authorized to update this note");
-    error.statusCode = 403;
-    throw error;
-  }
-
-  note.title = title || note.title;
-  note.content = content || note.content;
-
-  await note.save();
-  return note;
-};
-
-
-const deleteNote = async ({ noteId, userId }) => {
-  const note = await Note.findById(noteId);
-
-  if (!note) {
-    const error = new Error("Note not found");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  if (note.user.toString() !== userId.toString()) {
-    const error = new Error("Not authorized to delete this note");
-    error.statusCode = 403;
-    throw error;
-  }
-
-  await note.deleteOne();
-  return note;
-};
-
-
 module.exports = {
   createNote,
   getUserNotes,
   getNoteById,
   updateNote,
   deleteNote,
-   
 };
