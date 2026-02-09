@@ -1,10 +1,11 @@
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Import your hook
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const { token } = useAuth();
   
-  // If no token, redirect to login
   if (!token) {
+    // replace: true prevents the user from clicking "back" into the dashboard
     return <Navigate to="/login" replace />;
   }
 
