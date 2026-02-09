@@ -1,6 +1,8 @@
 const User = require("../models/user.model");
+const Note = require("../models/note.model");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 
 const registerUser = async ({ name, email, password }) => {
   // Check if user already exists
@@ -47,9 +49,6 @@ const loginUser = async ({ email, password }) => {
     { expiresIn: "1d" }
   );
 
-
-
-  
   return {
     token,
     user: {
@@ -61,51 +60,89 @@ const loginUser = async ({ email, password }) => {
 };
 
 
-
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email });
+  if (!user) {
+    const error = new Error("No user found with that email");
+    error.statusCode = 404;
+    throw error;
+  }
 
-  if (!user) throw new Error("User not found");
+  // 1. Generate Plain Token
+  const resetToken = crypto.randomBytes(20).toString("hex");
 
-  const resetToken = user.getResetPasswordToken();
+  // 2. Hash and Save to User
+  user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 mins from now
 
-  await user.save({ validateBeforeSave: false });
+  console.log("Saving Expiry to DB:", user.resetPasswordExpires); 
+  await user.save();
 
-  return resetToken; // send via email
+  // 3. Create Reset URL
+  // Ensure FRONTEND_URL is set in your .env (e.g., http://localhost:5173)
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  
+  // 4. Email Template
+  const message = `
+    <h1>Password Reset Request</h1>
+    <p>You requested a password reset. Please click the link below to set a new password:</p>
+    <a href="${resetUrl}" clicktracking=off>${resetUrl}</a>
+    <p>This link will expire in 15 minutes.</p>
+    <p>If you didn't request this, please ignore this email.</p>
+  `;
+
+  // 5. SEND THE EMAIL (This was missing!)
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "BrainDump - Password Reset Request",
+      message,
+    });
+    console.log("✅ Email sent successfully to:", user.email);
+  } catch (err) {
+    // If email fails, clean up the DB fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    
+    console.error("❌ Email failed to send:", err);
+    const error = new Error("Email could not be sent. Please try again later.");
+    error.statusCode = 500;
+    throw error;
+  }
 };
 
-
-
 const resetPassword = async (token, newPassword) => {
-  // 1. Hash the plain token from the URL to match the one in DB
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
+  // 1. Hash the token from the URL
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  // 2. Find user with the hashed token AND ensure it's not expired
+  // 2. Find user with matching hash and unexpired time
   const user = await User.findOne({
     resetPasswordToken: hashedToken,
-    resetPasswordExpire: { $gt: Date.now() },
+    resetPasswordExpires: { $gt: Date.now() },
   });
 
   if (!user) {
+    // Debugging logic
+    const userCheck = await User.findOne({ resetPasswordToken: hashedToken });
+    if (!userCheck) {
+      console.log("❌ REASON: Hashed token not found in database.");
+    } else {
+      console.log("❌ REASON: Token exists but is EXPIRED.");
+    }
+    
     const error = new Error("Invalid or expired token");
     error.statusCode = 400;
     throw error;
   }
 
-  // 3. Set the new plain password
-  
-  user.password = newPassword;
-
-  // 4. Clear the reset fields so the token can't be used again
+  // 3. Update Password & Clear Reset Fields
+  user.password = newPassword; 
   user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
-
+  user.resetPasswordExpires = undefined;
+  
   await user.save();
-
-  return user;
+  console.log("✅ Password successfully updated for:", user.email);
 };
 const getMe = async (userId) => {
   const user = await User.findById(userId).select("-password");
@@ -118,6 +155,20 @@ const getMe = async (userId) => {
 
   return user;
 };
+const deleteUserAccount = async (userId) => {
+  // Use try/catch here to catch DB errors
+  try {
+    // 1. Delete notes
+    await Note.deleteMany({ user: userId });
+    
+    // 2. Delete user
+    await User.findByIdAndDelete(userId);
+    
+    return { success: true };
+  } catch (err) {
+    throw err; // Send it up to the controller
+  }
+};
 
 module.exports = {
   registerUser,
@@ -125,4 +176,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   getMe,
+  deleteUserAccount,
 };

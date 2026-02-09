@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6, select: false },
     resetPasswordToken: { type: String,},
-    resetPasswordExpire: {type: Date,
+    resetPasswordExpires: {type: Date,
+    
 },
   },
   { timestamps: true }
@@ -38,7 +39,7 @@ userSchema.methods.getResetPasswordToken = function () {
     .digest("hex");
 
   // Token expiry (10 minutes)
-  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+this.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };

@@ -3,7 +3,8 @@ const logger = require("../utils/logger");
 
 const create = async (req, res, next) => {
   try {
-    const { title, content } = req.body;
+    // 1. Added isFavorite and tags to the destructuring
+    const { title, content, isFavorite, tags } = req.body;
 
     if (!title || !content) {
       const error = new Error("Title and content are required");
@@ -14,11 +15,12 @@ const create = async (req, res, next) => {
     const note = await createNote({
       title,
       content,
+      isFavorite: isFavorite || false, // Pass the new field
+      tags: tags || ['Personal'],      // Pass the new field
       userId: req.user._id,
     });
 
     logger.info({ userId: req.user._id }, "Note created");
-
 
     res.status(201).json({
       success: true,
@@ -29,6 +31,34 @@ const create = async (req, res, next) => {
     next(error);
   }
 };
+
+const update = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    // 1. You MUST add isPinned here to extract it from the frontend request
+    const { title, content, isFavorite, tags, isDeleted, isPinned } = req.body;
+
+    const updatedNote = await updateNote({
+      noteId: id,
+      title,
+      content,
+      isFavorite,
+      tags,
+      isDeleted,
+      isPinned, // 2. Pass it into the service call
+      userId: req.user._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedNote,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 const getAll = async (req, res, next) => {
   try {
     const { search, from, to } = req.query;
@@ -66,36 +96,6 @@ const getOne = async (req, res, next) => {
   }
 };
 
-const update = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { title, content } = req.body;
-
-    if (!title && !content) {
-      const error = new Error("Nothing to update");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const updatedNote = await updateNote({
-      noteId: id,
-      title,
-      content,
-      userId: req.user._id,
-    });
-
-    logger.info({ noteId: id, userId: req.user._id }, "Note updated");
-
-
-    res.status(200).json({
-      success: true,
-      message: "Note updated successfully",
-      data: updatedNote,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 const remove = async (req, res, next) => {
   try {

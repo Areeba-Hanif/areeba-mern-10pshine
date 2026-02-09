@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  /* This ensures Tailwind v4 recognizes the .dark class on the root */
+  --color-primary: #3b82f6;
+}
+
+/* Force dark mode behavior if it's not picking up automatically */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+/* Make the editor taller */
+.ql-container {
+  min-height: 250px;
+  font-size: 16px;
+}
+
+/* Fix for dropdowns being cut off in Modals */
+.ql-toolbar.ql-snow .ql-picker-label {
+  border: none;
+}
+
+.dark .ql-toolbar {
+  background-color: #f8fafc; /* Light background for toolbar in dark mode so icons are visible */
+  border-radius: 12px 12px 0 0;
+}
+
+.dark .ql-container {
+  background-color: #0f172a;
+  color: white;
+  border-radius: 0 0 12px 12px;
+}
+.prose img {
+  border-radius: 12px;
+}
+.prose a {
+  color: #6366f1;
+}
+/* This prevents the Quill editor from having a white background in dark mode */
+.dark .ql-editor.ql-blank::before {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1e293b;
+}
+
+/* Make the editor text larger and more readable */
+.ql-editor {
+  font-size: 1.125rem !important; /* 18px */
+  line-height: 1.6 !important;
+  font-family: 'Inter', sans-serif;
+  min-height: 300px;
+}
+
+/* Make the placeholder text larger too */
+.ql-editor.ql-blank::before {
+  font-size: 1.125rem !important;
+  font-style: normal !important;
+  opacity: 0.5;
+}
+
+/* Dark mode adjustments for the editor */
+.dark .ql-editor {
+  color: #e2e8f0;
+}
+.dark .ql-toolbar {
+  background-color: #1e293b;
+  border-color: #334155 !important;
+}
+.dark .ql-container {
+  border-color: #334155 !important;
+}
+
+/* Custom Scrollbar for both modals */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Ensure the fixed footer doesn't overlap text awkwardly */
+.flex-1.overflow-y-auto {
+  mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+}
+

@@ -1,7 +1,5 @@
 const express = require("express");
 
-const { protect } = require("../middlewares/auth.middleware");
-
 const router = express.Router();
 
 // 1. Imports
@@ -14,6 +12,7 @@ router.get("/", protect, getAll);
 router.put("/:id", protect, update);
 router.delete("/:id", protect, remove);
 router.get("/:id", protect, getOne);
+
 
 
 module.exports = router;
