@@ -20,7 +20,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
      
         </Routes>
       </Router>

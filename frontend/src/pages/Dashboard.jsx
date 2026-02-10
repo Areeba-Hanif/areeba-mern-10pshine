@@ -21,7 +21,7 @@ const CATEGORIES = ['Work', 'Personal', 'Ideas', 'Important', 'Urgent'];
 const Dashboard = () => {
 
   const [userData, setUserData] = useState(null);
-  const { isDark, toggleTheme } = useAuth();
+  const { isDark, toggleTheme, logout } = useAuth(); // Destructure logout
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -45,11 +45,15 @@ const Dashboard = () => {
   const [noteTag, setNoteTag] = useState('Personal');
 
 useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    handleLogout();
+    return;
+  }
 
   const initDashboard = async () => {
     setLoading(true);
     try {
-      // Fetch both in parallel for speed
       const [notesRes, userRes] = await Promise.all([
         api.get('/notes'),
         api.get('/auth/me')
@@ -58,6 +62,7 @@ useEffect(() => {
       if (notesRes.data.success) setNotes(notesRes.data.data);
       if (userRes.data.success) setUserData(userRes.data.user);
     } catch (error) {
+      // If the backend says the token is invalid (401), boot them out
       toast.error("Session expired");
       handleLogout();
     } finally {
@@ -95,11 +100,12 @@ const handleRestore = async (e, note) => {
   }
 };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
-  };
 
+
+const handleLogout = () => {
+  logout(); // This clears localStorage AND updates React state
+  navigate('/login');
+};
 
 
 const handleDownloadPDF = (note) => {

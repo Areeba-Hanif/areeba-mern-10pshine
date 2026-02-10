@@ -10,39 +10,40 @@ const Login = () => {
   const navigate = useNavigate();
 
   // --- 1. STATE & CONTEXT ---
-  const { isDark, toggleTheme } = useAuth();
+ // Add 'login' to your destructuring
+const { isDark, toggleTheme, login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   // --- 2. LOGIN LOGIC (Your original code) ---
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
+  
+  const email = e.target.email.value;
+  const password = e.target.password.value;
+
+  logger.info({ email }, "Attempting login...");
+
+  try {
+    const response = await api.post('/auth/login', { email, password });
     
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    if (response.data.success) {
+      const { token, user } = response.data.data;
 
-    logger.info({ email }, "Attempting login...");
+      // REPLACE THE MANUAL SETITEM LINES WITH THIS:
+      login(token, user); 
 
-    try {
-      const response = await api.post('/auth/login', { email, password });
+      logger.info("Login successful, navigating to dashboard");
+      toast.success("Login Successful");
       
-      console.log("Backend Response:", response.data);
-
-      if (response.data.success) {
-        const { token, user } = response.data.data;
-
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-
-        logger.info("Login successful, navigating to dashboard");
-        toast.success("Login Successful");
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      const message = error.response?.data?.message || "Invalid Credentials";
-      logger.error({ err: message }, "Login failed");
-      toast.error(message);
+      // Now navigation will work because the Auth State is "true"
+      navigate('/dashboard');
     }
-  };
+  } catch (error) {
+    const message = error.response?.data?.message || "Invalid Credentials";
+    logger.error({ err: message }, "Login failed");
+    toast.error(message);
+  }
+};
 
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors duration-500">

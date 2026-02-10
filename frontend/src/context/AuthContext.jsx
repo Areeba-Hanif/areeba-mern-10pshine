@@ -3,10 +3,11 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    return localStorage.getItem('theme') === 'dark';
-  });
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token')); // Track token in state
+  const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
 
+  // Theme Logic
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
@@ -20,8 +21,22 @@ export const AuthProvider = ({ children }) => {
 
   const toggleTheme = () => setIsDark(prev => !prev);
 
+  // Login Function
+  const login = (newToken, userData) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+    setUser(userData);
+  };
+
+  // Logout Function
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ isDark, toggleTheme }}>
+    <AuthContext.Provider value={{ isDark, toggleTheme, user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
