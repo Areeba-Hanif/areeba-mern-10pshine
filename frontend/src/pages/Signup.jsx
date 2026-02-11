@@ -65,32 +65,66 @@ const Signup = () => {
           </div>
 
           <form className="space-y-4" onSubmit={handleSignup}>
-            <div className="space-y-1">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Full Name</label>
-              <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
-                <input name="name" type="text" required className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" placeholder="John Doe" />
-              </div>
-            </div>
+         {/* Full Name Field */}
+<div className="space-y-1">
+  <label htmlFor="full-name" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">
+    Full Name
+  </label>
+  <div className="relative group">
+    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
+    <input 
+      id="full-name"
+      name="name" 
+      type="text" 
+      required 
+      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" 
+      placeholder="John Doe" 
+    />
+  </div>
+</div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email</label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
-                <input name="email" type="email" required className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" placeholder="name@domain.com" />
-              </div>
-            </div>
+{/* Email Field */}
+<div className="space-y-1">
+  <label htmlFor="email-address" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">
+    Email
+  </label>
+  <div className="relative group">
+    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
+    <input 
+      id="email-address"
+      name="email" 
+      type="email" 
+      required 
+      className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" 
+      placeholder="name@domain.com" 
+    />
+  </div>
+</div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
-                <input name="password" type={showPassword ? "text" : "password"} required className="w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500">
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
+{/* Password Field */}
+<div className="space-y-1">
+  <label htmlFor="password-field" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">
+    Password
+  </label>
+  <div className="relative group">
+    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={18} />
+    <input 
+      id="password-field"
+      name="password" 
+      type={showPassword ? "text" : "password"} 
+      required 
+      className="w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all" 
+      placeholder="••••••••" 
+    />
+    <button 
+      type="button" 
+      onClick={() => setShowPassword(!showPassword)} 
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500"
+    >
+      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+    </button>
+  </div>
+</div>
 
             <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 dark:shadow-none mt-4">
               Get Started <ArrowRight size={18} />
