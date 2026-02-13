@@ -89,76 +89,79 @@ const handleLogin = async (e) => {
         </div>
       </div>
 
-      {/* --- RIGHT SIDE: LOGIN FORM --- */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
-        
-        {/* Theme Toggle */}
-        <button 
-          onClick={toggleTheme}
-          type="button"
-          className="absolute top-8 right-8 p-3 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-yellow-400 hover:scale-110 transition-all"
-        >
-          {isDark ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+{/* --- RIGHT SIDE: LOGIN FORM --- */}
+<div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 relative">
+  
+  {/* Theme Toggle */}
+  <button 
+    onClick={toggleTheme}
+    type="button"
+    aria-label="Toggle Theme"
+    className="absolute top-8 right-8 p-3 rounded-2xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-yellow-400 hover:scale-110 transition-all"
+  >
+    {isDark ? <Sun size={20} /> : <Moon size={20} />}
+  </button>
 
-        <div className="w-full max-w-md">
-          <div className="mb-10 text-center lg:text-left">
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Welcome Back</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium">Please sign in to access your notes.</p>
-          </div>
+  <div className="w-full max-w-md">
+    <div className="mb-10 text-center lg:text-left">
+      <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Welcome Back</h1>
+      <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium">Please sign in to access your notes.</p>
+    </div>
 
-          <form className="space-y-5" onSubmit={handleLogin}>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email</label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <input 
-                  type="email" 
-                  name="email" 
-                  required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all shadow-sm" 
-                  placeholder="name@domain.com" 
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center px-1">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
-                {/* --- FORGOT PASSWORD LINK --- */}
-                <Link to="/forgot-password" size="sm" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                  Forgot Password?
-                </Link>
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  name="password" 
-                  required
-                  className="w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all shadow-sm" 
-                  placeholder="••••••••" 
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPassword(!showPassword)} 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95">
-              Sign In <ArrowRight size={18} />
-            </button>
-
-            <p className="text-center mt-6 text-slate-500 dark:text-slate-400 font-medium text-sm">
-              New here? <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline underline-offset-4 ml-1">Create account</Link>
-            </p>
-          </form>
+    <form className="space-y-5" onSubmit={handleLogin}>
+      <div className="space-y-2">
+        <label htmlFor="login-email" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email</label>
+        <div className="relative group">
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+          <input 
+            id="login-email"
+            type="email" 
+            name="email" 
+            required
+            className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all shadow-sm" 
+            placeholder="name@domain.com" 
+          />
         </div>
       </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between items-center px-1">
+          <label htmlFor="login-password" className="text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
+          <Link to="/forgot-password" size="sm" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+            Forgot Password?
+          </Link>
+        </div>
+        <div className="relative group">
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+          <input 
+            id="login-password"
+            type={showPassword ? "text" : "password"} 
+            name="password" 
+            required
+            className="w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-500 outline-none dark:text-white transition-all shadow-sm" 
+            placeholder="••••••••" 
+          />
+          <button 
+            type="button" 
+            onClick={() => setShowPassword(!showPassword)} 
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95">
+        Sign In <ArrowRight size={18} />
+      </button>
+
+      <p className="text-center mt-6 text-slate-500 dark:text-slate-400 font-medium text-sm">
+        New here? <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline underline-offset-4 ml-1">Create account</Link>
+      </p>
+    </form>
+  </div>
+</div>
     </div>
   );
 };

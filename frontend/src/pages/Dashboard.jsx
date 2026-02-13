@@ -19,11 +19,13 @@ import SettingsPage from './SettingsPage'; // Ensure path is correct
 const CATEGORIES = ['Work', 'Personal', 'Ideas', 'Important', 'Urgent'];
 
 const Dashboard = () => {
+  
 
   const [userData, setUserData] = useState(null);
   const { isDark, toggleTheme, logout } = useAuth(); // Destructure logout
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const [userData, setUserData] = useState(null); // Make sure setUserData is here!
 
   // Data States
   const [notes, setNotes] = useState([]);
@@ -291,9 +293,19 @@ const NoteCard = ({ note }) => (
           </>
         ) : (
           <>
-            <button onClick={() => openEditModal(note)} className="p-2 text-slate-400 hover:text-indigo-600 rounded-xl"><Edit3 size={18} /></button>
-            <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(note); }} className="p-2 text-slate-400 hover:text-blue-600 rounded-xl"><Download size={18} /></button>
-            <button onClick={(e) => handleMoveToTrash(e, note)} className="p-2 text-slate-400 hover:text-red-500 rounded-xl"><Trash2 size={18} /></button>
+            {/* ADDED TEST ID HERE */}
+            <button onClick={() => openEditModal(note)} data-testid="edit-note-btn" className="p-2 text-slate-400 hover:text-indigo-600 rounded-xl">
+              <Edit3 size={18} />
+            </button>
+            
+            <button onClick={(e) => { e.stopPropagation(); handleDownloadPDF(note); }} className="p-2 text-slate-400 hover:text-blue-600 rounded-xl">
+              <Download size={18} />
+            </button>
+            
+            {/* ADDED TEST ID HERE */}
+            <button onClick={(e) => handleMoveToTrash(e, note)} data-testid="delete-note-btn" className="p-2 text-slate-400 hover:text-red-500 rounded-xl">
+              <Trash2 size={18} />
+            </button>
           </>
         )}
       </div>
@@ -303,7 +315,6 @@ const NoteCard = ({ note }) => (
     </div>
   </div>
 );
-
 
   // --- IMPORT FUNCTIONALITY ---
   const handleImportClick = () => fileInputRef.current.click();
@@ -349,7 +360,7 @@ const NoteCard = ({ note }) => (
     <div className={`min-h-screen flex ${isDark ? 'dark bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
       <input type="file" ref={fileInputRef} onChange={handleFileImport} className="hidden" accept=".txt,.md" />
 
-      {/* Sidebar */}
+      
 {/* Sidebar */}
 <aside className="w-64 h-screen sticky top-0 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col bg-white dark:bg-slate-900 hidden lg:flex">
   
@@ -392,7 +403,7 @@ const NoteCard = ({ note }) => (
     <Star size={20} /> Favorites
   </button>
   
-  <button 
+  <button  
     onClick={() => {
       setSelectedFilter('Trash');
       setCurrentView('notes'); // Return to dashboard
@@ -503,7 +514,7 @@ const NoteCard = ({ note }) => (
         </div>
         <div className="hidden md:block text-left">
           <p className="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">{userData?.name || 'User'}</p>
-          <p className="text-[10px] text-slate-400 font-medium">Pro Account</p>
+         
         </div>
         <ChevronDown size={14} className="text-slate-400 group-hover:rotate-180 transition-transform" />
       </button>
@@ -534,17 +545,19 @@ const NoteCard = ({ note }) => (
   </div>
 </header>
 
- {/* Content Section */}
+
  {/* Content Section */}
 <div className="p-8 w-full overflow-y-auto">
   {/* 1. CHECK IF WE ARE IN SETTINGS VIEW */}
   {currentView === 'settings' ? (
-    <SettingsPage 
-      userData={userData} 
-      isDark={isDark} 
-      toggleTheme={toggleTheme} 
-      onBack={() => setCurrentView('notes')} 
-    />
+  // Inside Dashboard.jsx
+<SettingsPage 
+    userData={userData} 
+    onUpdateUser={setUserData} // This is the function that was missing
+    isDark={isDark} 
+    toggleTheme={toggleTheme} 
+    onBack={() => setCurrentView('notes')} 
+  />
   ) : (
     /* 2. IF NOT SETTINGS, SHOW LOADING OR NOTES */
     <>
