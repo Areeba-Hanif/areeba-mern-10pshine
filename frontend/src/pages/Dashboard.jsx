@@ -21,7 +21,8 @@ const CATEGORIES = ['Work', 'Personal', 'Ideas', 'Important', 'Urgent'];
 const Dashboard = () => {
   
 
-  const { isDark, toggleTheme } = useAuth();
+  const [userData, setUserData] = useState(null);
+  const { isDark, toggleTheme, logout } = useAuth(); // Destructure logout
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [userData, setUserData] = useState(null); // Make sure setUserData is here!
@@ -47,29 +48,25 @@ const Dashboard = () => {
 
 useEffect(() => {
   const token = localStorage.getItem('token');
-  
-  // If there's no token at all, don't even try the API
   if (!token) {
-    setLoading(false);
-    return; 
+    handleLogout();
+    return;
   }
 
   const initDashboard = async () => {
     setLoading(true);
     try {
-     const [notesRes, userRes] = await Promise.all([
-      api.get('/notes'),
-      api.get('/auth/me')
-    ]);
-    
-    if (notesRes.data.success) setNotes(notesRes.data.data);
-    if (userRes.data.success) setUserData(userRes.data.user);
+      const [notesRes, userRes] = await Promise.all([
+        api.get('/notes'),
+        api.get('/auth/me')
+      ]);
+      
+      if (notesRes.data.success) setNotes(notesRes.data.data);
+      if (userRes.data.success) setUserData(userRes.data.user);
     } catch (error) {
-     
-      if (error.response?.status === 401) {
-        toast.error("Session expired");
-        handleLogout();
-      }
+      // If the backend says the token is invalid (401), boot them out
+      toast.error("Session expired");
+      handleLogout();
     } finally {
       setLoading(false);
     }
@@ -105,11 +102,12 @@ const handleRestore = async (e, note) => {
   }
 };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
-  };
 
+
+const handleLogout = () => {
+  logout(); // This clears localStorage AND updates React state
+  navigate('/login');
+};
 
 
 const handleDownloadPDF = (note) => {

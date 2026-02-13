@@ -100,3 +100,25 @@ html {
   -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
 }
 
+/* Fix Quill for Dark Mode */
+.dark .ql-toolbar {
+  background-color: #1e293b; /* slate-800 */
+  border-color: #334155 !important;
+}
+
+.dark .ql-container {
+  border-color: #334155 !important;
+  color: white;
+}
+
+.dark .ql-stroke {
+  stroke: #cbd5e1 !important; /* light grey icons */
+}
+
+.dark .ql-picker {
+  color: #cbd5e1 !important;
+}
+
+.dark .ql-editor.ql-blank::before {
+  color: #64748b !important; /* placeholder color */
+}
