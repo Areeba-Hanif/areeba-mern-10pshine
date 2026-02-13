@@ -4,18 +4,23 @@ import { BrowserRouter } from 'react-router-dom';
 import { vi, test, expect, describe, beforeEach } from 'vitest';
 import Dashboard from "../pages/Dashboard";
 import api from "../services/api";
+import { AuthProvider } from '../context/useAuth'; // Ensure this path is correct
 import '@testing-library/jest-dom/vitest';
 
-// Fix environment
-if (typeof TextEncoder === 'undefined') {
+// Fix environment for JSDOM
+if (typeof global.TextEncoder === 'undefined') {
   global.TextEncoder = TextEncoder;
+}
+if (typeof global.TextDecoder === 'undefined') {
   global.TextDecoder = TextDecoder;
 }
 
 // Mock useAuth
 vi.mock("../context/useAuth", () => ({
+  // We mock the provider AND the hook
+  AuthProvider: ({ children }) => <div>{children}</div>,
   useAuth: () => ({
-    user: { name: "Areeba" },
+    userData: { name: "Areeba" },
     login: vi.fn(),
     logout: vi.fn(),
     isDark: false,
@@ -50,68 +55,119 @@ const mockNotes = [
   },
 ];
 
-const renderDashboard = () =>
+const renderDashboard = () => {
   render(
     <BrowserRouter>
-      <Dashboard />
+      <AuthProvider>
+        <Dashboard />
+      </AuthProvider>
     </BrowserRouter>
   );
+};
 
 describe("Dashboard Component", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+beforeEach(() => {
+  // 1. Mock the token
+  Storage.prototype.getItem = vi.fn((key) => {
+    if (key === 'token') return 'fake-token-123';
+    return null;
   });
 
+  // 2. Mock the default GET response so notes actually appear!
+  
+ api.get.mockResolvedValue({
+  data: {
+    success: true,
+    data: mockNotes // This must be an array
+  }
+});
+
+  vi.clearAllMocks();
+});
+
   test("fetches and displays notes on mount", async () => {
-    api.get.mockResolvedValue({ data: { success: true, data: mockNotes } });
-
     renderDashboard();
-
     const noteTitle = await screen.findByText("Test Note");
     expect(noteTitle).toBeInTheDocument();
   });
 
   test("opens create note modal when 'New Note' is clicked", async () => {
-    api.get.mockResolvedValue({ data: { success: true, data: [] } });
-
     renderDashboard();
-
-    const newNoteBtn = await screen.findByText(/New Note/i);
+    const newNoteBtn = await screen.findByRole('button', { name: /New Note/i });
     fireEvent.click(newNoteBtn);
 
-    const modalTitle = await screen.findByPlaceholderText(/Note Title/i);
+    const modalTitle = await screen.findByPlaceholderText(/Note Title.../i);
     expect(modalTitle).toBeInTheDocument();
   });
 
-  test("submits new note successfully", async () => {
-    api.get.mockResolvedValue({ data: { success: true, data: [] } });
-    api.post.mockResolvedValue({ data: { data: mockNotes[0] } });
-
-    renderDashboard();
-
-    fireEvent.click(await screen.findByText(/New Note/i));
+  describe('Note Operations', () => {
     
-    const titleInput = screen.getByPlaceholderText(/Note Title/i);
-    fireEvent.change(titleInput, { target: { value: "New Test Note" } });
-    
-    const createBtn = screen.getByText(/Create Note/i);
-    fireEvent.click(createBtn);
+    test('successfully creates a new note', async () => {
+      // Mock the POST response
+      const newNote = { ...mockNotes[0], _id: "2", title: "Test Note Title" };
+      api.post.mockResolvedValue({ data: { success: true, data: newNote } });
 
-    await waitFor(() => {
-      expect(api.post).toHaveBeenCalled();
+      renderDashboard();
+
+      // Open Modal
+      const newNoteBtn = await screen.findByRole('button', { name: /New Note/i });
+      fireEvent.click(newNoteBtn);
+
+      // Fill Form
+      const titleInput = screen.getByPlaceholderText(/Note Title.../i);
+      fireEvent.change(titleInput, { target: { value: 'Test Note Title' } });
+
+      // Handle ReactQuill (finding by class since it doesn't have a simple input tag)
+      const editor = document.querySelector('.ql-editor');
+      fireEvent.input(editor, { target: { innerHTML: 'This is some brilliant content.' } });
+
+      // Click Create
+      const saveBtn = screen.getByRole('button', { name: /Create Note/i });
+      fireEvent.click(saveBtn);
+
+      // Verify
+      await waitFor(() => {
+        expect(api.post).toHaveBeenCalled();
+        expect(screen.getByText('Test Note Title')).toBeInTheDocument();
+      });
     });
+
+    test('opens edit modal with existing note data', async () => {
+      renderDashboard();
+      
+      const editBtn = await screen.findAllByTestId('edit-note-btn'); 
+      fireEvent.click(editBtn[0]);
+      
+      const titleInput = screen.getByPlaceholderText(/Note Title.../i);
+      expect(titleInput.value).toBe("Test Note");
+    });
+
+test('deletes a note after confirmation', async () => {
+  // 1. Mock the confirm (though handleMoveToTrash doesn't use it, 
+  // keeping it doesn't hurt if you add it to the UI later)
+  const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+  
+  // 2. Mock the soft delete API response
+  api.put.mockResolvedValue({ 
+    data: { success: true, data: { ...mockNotes[0], isDeleted: true } } 
   });
 
-  test("logout clears localStorage", async () => {
-    api.get.mockResolvedValue({ data: { success: true, data: [] } });
-    const spy = vi.spyOn(Storage.prototype, "clear");
+  renderDashboard();
 
-    renderDashboard();
+  // 3. CRITICAL: Wait for the note to appear in the DOM first
+  // This ensures the API call finished and the NoteCard is rendered
+  await screen.findByText("Test Note"); 
 
-    const logoutBtns = await screen.findAllByText(/Logout/i);
-    fireEvent.click(logoutBtns[0]);
+  // 4. Now find the buttons
+  const deleteBtns = await screen.findAllByTestId('delete-note-btn');
+  fireEvent.click(deleteBtns[0]);
 
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
+  // 5. Verify it's gone
+  await waitFor(() => {
+    expect(screen.queryByText('Test Note')).not.toBeInTheDocument();
+  });
+
+  confirmSpy.mockRestore();
+});
   });
 });

@@ -27,16 +27,23 @@ const Login = () => {
       
       console.log("Backend Response:", response.data);
 
-      if (response.data.success) {
-        const { token, user } = response.data.data;
+  
+if (response.data.success) {
+  const { token, user } = response.data.data;
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
 
-        logger.info("Login successful, navigating to dashboard");
-        toast.success("Login Successful");
-        navigate('/dashboard');
-      }
+  // Sync the API instance immediately
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+  toast.success("Login Successful");
+  
+  // Give the browser a millisecond to breathe
+  setTimeout(() => {
+    navigate('/dashboard');
+  }, 10);
+}
     } catch (error) {
       const message = error.response?.data?.message || "Invalid Credentials";
       logger.error({ err: message }, "Login failed");
