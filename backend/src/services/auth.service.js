@@ -155,20 +155,71 @@ const getMe = async (userId) => {
 
   return user;
 };
-const deleteUserAccount = async (userId) => {
-  // Use try/catch here to catch DB errors
+const deleteUserAccount = async (userId, password) => {
+  // 1. Find the user including the password field
+  const user = await User.findById(userId).select("+password");
+  
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // 2. VERIFY the password
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    const error = new Error("Incorrect password. Deletion aborted.");
+    error.statusCode = 401; // Unauthorized
+    throw error;
+  }
+
   try {
-    // 1. Delete notes
+    // 3. Delete notes associated with the user
     await Note.deleteMany({ user: userId });
     
-    // 2. Delete user
+    // 4. Delete the user
     await User.findByIdAndDelete(userId);
     
     return { success: true };
   } catch (err) {
-    throw err; // Send it up to the controller
+    throw err;
   }
 };
+
+const updateProfileService = async (userId, { name, currentPassword, nextPassword }) => {
+  // 1. Fetch user (must include password for comparison)
+  const user = await User.findById(userId).select("+password");
+  if (!user) throw new Error("User not found");
+
+  // 2. Verify current password
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    const error = new Error("Current password incorrect");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // 3. Update fields
+  if (name) user.name = name;
+  
+  if (nextPassword) {
+    // Just set the plain text password; 
+    // your User model's .pre('save') middleware will hash it.
+    user.password = nextPassword;
+  }
+
+  // 4. Save and return
+  // If this line fails (500 error), check your User model validation rules
+  await user.save(); 
+
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+  };
+};
+
+
 
 module.exports = {
   registerUser,
@@ -177,4 +228,5 @@ module.exports = {
   resetPassword,
   getMe,
   deleteUserAccount,
+  updateProfileService,
 };
