@@ -1,0 +1,7 @@
+organization=areeba-hanif-github
+projectKey=Areeba-Hanif_areeba-mern-10pshine
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.81296
+dashboardUrl=https://sonarcloud.io/dashboard?id=Areeba-Hanif_areeba-mern-10pshine
+ceTaskId=AZxdr5uu9RL4PIzrvijY
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZxdr5uu9RL4PIzrvijY
