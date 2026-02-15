@@ -25,7 +25,7 @@ const Dashboard = () => {
   const { isDark, toggleTheme, logout } = useAuth(); // Destructure logout
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  
+ 
 
   // Data States
   const [notes, setNotes] = useState([]);

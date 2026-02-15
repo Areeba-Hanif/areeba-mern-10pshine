@@ -1,4 +1,4 @@
-const { registerUser, loginUser, forgotPassword, resetPassword,deleteUserAccount  } = require("../services/auth.service");
+const { registerUser, loginUser, forgotPassword, resetPassword,deleteUserAccount ,updateProfileService } = require("../services/auth.service");
 const logger = require("../utils/logger");
 
 const register = async (req, res, next) => {
@@ -70,9 +70,17 @@ const me = async (req, res) => {
 const deleteAccount = async (req, res, next) => {
   try {
     const userId = req.user._id || req.user.id;
+    // EXTRACT the password from the body
+    const { password } = req.body; 
+
+    if (!password) {
+      const error = new Error("Password is required to delete account");
+      error.statusCode = 400;
+      throw error;
+    }
     
-    // Call the service function we just fixed
-    await deleteUserAccount(userId);
+    // Pass BOTH userId and password to the service
+    await deleteUserAccount(userId, password);
 
     res.status(200).json({
       success: true,
@@ -84,4 +92,34 @@ const deleteAccount = async (req, res, next) => {
 };
 
 
-module.exports = { register, login, forgot, reset, me, deleteAccount };
+// 2. Add the update function
+const update = async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    const { name, currentPassword, nextPassword } = req.body;
+
+    // MANDATORY: Check if currentPassword exists in the request
+    if (!currentPassword) {
+      const error = new Error("Current password is required to authorize these changes.");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const updatedUser = await updateProfileService(userId, { 
+      name, 
+      currentPassword, 
+      nextPassword 
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Profile updated successfully", 
+      data: updatedUser 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports = { register, login, forgot, reset, me, deleteAccount ,update};
